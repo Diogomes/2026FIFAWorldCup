@@ -28,8 +28,10 @@ O índice (0 a 5) é a posição do jogo na lista `m` daquele grupo (logo acima,
 Jogos sem resultado em `RESULTS` ficam em branco para palpites; os que têm resultado ficam
 travados e em caneta verde. Commit + push e o Pages atualiza sozinho.
 
-## Estado em 19/06/2026
+## Estado em 22/06/2026
 
 - 1ª rodada completa (24 jogos).
-- 2ª rodada: Grupos A e B fechados — México 1×0 Coreia (1º classificado da Copa),
-  Tchéquia 1×1 África do Sul, Suíça 4×1 Bósnia, Canadá 6×0 Catar.
+- 2ª rodada correu dos Grupos A ao I e abriu o J. Destaques: México 1×0 Coreia
+  (1º classificado da Copa), Brasil 4×0 Haiti, Argentina 2×0 Áustria, França 3×0 Iraque
+  e Espanha 3×0 Arábia Saudita.
+- A 2ª rodada dos Grupos K e L (23/06) ainda não rolou.

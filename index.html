@@ -118,6 +118,7 @@
   .slot input.team{border:0;background:transparent;font-family:'Oswald';font-weight:500;font-size:13px;color:var(--ink);width:100%;padding:3px 2px;border-bottom:1px solid transparent;}
   .slot input.team::placeholder{color:#b6a988;font-weight:400;font-style:italic;}
   .slot input.team:focus{outline:none;border-bottom:1px solid var(--gold);}
+  .slot input.team.official{color:var(--teal);font-weight:700;cursor:default;}
   .slot input.sc{width:26px;height:24px;text-align:center;border:1.5px solid var(--line);border-radius:3px;background:#fffdf6;font-family:'Oswald';font-weight:600;font-size:13px;color:var(--ink);-moz-appearance:textfield;}
   .slot input.sc::-webkit-outer-spin-button,.slot input.sc::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
   .slot input.sc:focus{outline:1px solid var(--gold);border-color:var(--gold);}
@@ -180,9 +181,9 @@
 
   <section id="knockout">
     <p class="ko-note">
-      Os Grupos A, B e C já terminaram, mas o chaveamento fica por sua conta. Conforme os grupos acabarem,
-      escreva os classificados nas chaves de 16-avos; com o placar, o <b>vencedor sobe sozinho</b>.
-      Em empate, toque no nome de quem avançou (pênaltis).
+      Os Grupos A, B e C já terminaram: os classificados (1º e 2º) já aparecem <b>travados</b> nas suas chaves de 16-avos
+      — só faltam os adversários (3ºs colocados), que saem quando os outros grupos acabarem. Escreva o resto com seus palpites;
+      com o placar, o <b>vencedor sobe sozinho</b>. Em empate, toque no nome de quem avançou (pênaltis).
     </p>
     <div class="bracket-scroll"><div class="bracket" id="bracket"></div></div>
     <div class="third"><div class="round" data-r="3L" style="max-width:240px;">
@@ -313,19 +314,32 @@ const WIN_LINK={73:[89,1],75:[89,2],74:[90,1],77:[90,2],76:[91,1],78:[91,2],79:[
  97:[101,1],98:[101,2],99:[102,1],100:[102,2],101:[104,1],102:[104,2]};
 const LOSE_LINK={101:[103,1],102:[103,2]};
 
+/* Seleções já classificadas (1º/2º) com chave de 16-avos definida — fonte FIFA.
+   Grupos A, B e C encerrados; os adversários (3ºs colocados) só saem depois. */
+const KO_OFFICIAL={
+ 73:{t1:"África do Sul",t2:"Canadá"}, // 2ºA × 2ºB
+ 75:{t2:"Marrocos"},                  // 1ºF × 2ºC
+ 76:{t1:"Brasil"},                    // 1ºC × 2ºF
+ 79:{t1:"México"},                    // 1ºA × 3º
+ 85:{t1:"Suíça"}                      // 1ºB × 3º
+};
+function isKOOfficial(id,slot){return KO_OFFICIAL[id]&&KO_OFFICIAL[id]['t'+slot]!==undefined;}
+
 /* ============ ESTADO ============ */
 const KEY="copa2026_cartao_v2";
 let state={g:{},ko:{}};
 function applyOfficial(){for(const L in RESULTS)for(const i in RESULTS[L]){const r=RESULTS[L][i];state.g[L][i]={h:r[0],a:r[1]};}}
+function applyKOOfficial(){for(const id in KO_OFFICIAL){const o=KO_OFFICIAL[id];if(!state.ko[id])continue;if(o.t1!=null)state.ko[id].t1=o.t1;if(o.t2!=null)state.ko[id].t2=o.t2;}}
 for(const L in GROUPS)state.g[L]=GROUPS[L].m.map(()=>({h:null,a:null}));
 applyOfficial();
 Object.keys(KO_META).forEach(id=>state.ko[id]={t1:"",t2:"",s1:null,s2:null,w:0});
+applyKOOfficial();
 
 function load(){
  try{const r=localStorage.getItem(KEY);if(r){const s=JSON.parse(r);
    if(s.g)for(const L in s.g)if(state.g[L])state.g[L]=s.g[L];
    if(s.ko)for(const id in s.ko)if(state.ko[id])state.ko[id]=s.ko[id];}}catch(e){}
- applyOfficial(); // resultados oficiais sempre prevalecem
+ applyOfficial();applyKOOfficial(); // resultados oficiais sempre prevalecem
 }
 function save(flash){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
  if(flash){const f=document.getElementById("flash");f.classList.add("show");clearTimeout(window._ft);window._ft=setTimeout(()=>f.classList.remove("show"),1400);}}
@@ -418,12 +432,13 @@ function refreshTie(id){
 }
 function tieHTML(id){
  const k=state.ko[id];const meta=KO_META[id]||["",""];
+ const o1=isKOOfficial(id,1),o2=isKOOfficial(id,2);
  return `<div class="tie"><div class="tid"><span>Jogo ${id}</span><span class="v">${meta[0]} · ${meta[1]}</span></div>
    <div class="slot" data-ko="${id}" data-slot="1">
-     <input class="team" data-ko="${id}" data-slot="1" value="${k.t1||''}" placeholder="classificado">
+     <input class="team${o1?' official':''}" data-ko="${id}" data-slot="1" value="${k.t1||''}" placeholder="classificado" ${o1?'readonly tabindex="-1"':''}>
      <input class="sc" type="number" min="0" inputmode="numeric" data-ko="${id}" data-fs="1" value="${k.s1??''}"></div>
    <div class="slot" data-ko="${id}" data-slot="2">
-     <input class="team" data-ko="${id}" data-slot="2" value="${k.t2||''}" placeholder="classificado">
+     <input class="team${o2?' official':''}" data-ko="${id}" data-slot="2" value="${k.t2||''}" placeholder="classificado" ${o2?'readonly tabindex="-1"':''}>
      <input class="sc" type="number" min="0" inputmode="numeric" data-ko="${id}" data-fs="2" value="${k.s2??''}"></div></div>`;
 }
 function renderKO(){
@@ -435,7 +450,7 @@ function renderKO(){
  });
  br.innerHTML=html;
  document.getElementById("thirdBody").innerHTML=tieHTML(103);
- document.querySelectorAll('input.team[data-ko]').forEach(inp=>{
+ document.querySelectorAll('input.team[data-ko]:not([readonly])').forEach(inp=>{
    inp.addEventListener('input',e=>{const id=+e.target.dataset.ko,sl=e.target.dataset.slot;
      state.ko[id]['t'+sl]=e.target.value;propagate(id);save(false);});
  });
@@ -466,7 +481,7 @@ document.getElementById("btnSave").addEventListener('click',()=>save(true));
 document.getElementById("btnClear").addEventListener('click',()=>{
  if(!confirm("Apagar seus palpites? Os resultados oficiais (já jogados) continuam preenchidos."))return;
  for(const L in GROUPS)state.g[L]=GROUPS[L].m.map(()=>({h:null,a:null}));applyOfficial();
- Object.keys(KO_META).forEach(id=>state.ko[id]={t1:"",t2:"",s1:null,s2:null,w:0});
+ Object.keys(KO_META).forEach(id=>state.ko[id]={t1:"",t2:"",s1:null,s2:null,w:0});applyKOOfficial();
  save(true);renderGroups();renderKO();
 });
 

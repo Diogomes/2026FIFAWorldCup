@@ -102,14 +102,49 @@
   .ko-note{font-family:'Oswald';font-size:12px;color:var(--ink-soft);margin:0 0 16px;letter-spacing:.02em;}
   .ko-note b{color:var(--red);}
   .bracket-scroll{overflow-x:auto;padding-bottom:14px;-webkit-overflow-scrolling:touch;}
-  .bracket{display:flex;gap:30px;min-width:1080px;align-items:stretch;}
-  .round{display:flex;flex-direction:column;flex:1;min-width:170px;}
-  .round-h{font-family:'Anton';font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--blue);padding:6px 10px 5px;border-radius:2px;text-align:center;margin-bottom:14px;}
-  .round[data-r="R16"] .round-h{background:var(--teal);}
-  .round[data-r="QF"] .round-h{background:var(--pitch);}
-  .round[data-r="SF"] .round-h{background:var(--red);}
-  .round[data-r="F"] .round-h{background:var(--gold);color:var(--ink);}
-  .round-body{display:flex;flex-direction:column;justify-content:space-around;flex:1;gap:10px;}
+  /* chaveamento espelhado: LADO ESQUERDO | CENTRO (final/3º) | LADO DIRECTO */
+  .bracket{--cgap:22px;display:flex;align-items:stretch;justify-content:center;gap:calc(var(--cgap)*2);min-width:1180px;}
+  .side{display:flex;gap:var(--cgap);}
+  .col{display:flex;flex-direction:column;flex:1;min-width:152px;}
+  .col-body{flex:1;display:flex;flex-direction:column;}
+  .round-h{font-family:'Anton';font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--blue);padding:6px 10px 5px;border-radius:2px;text-align:center;margin-bottom:14px;min-height:14px;line-height:1.1;}
+  .col[data-r="R16"] .round-h{background:var(--teal);}
+  .col[data-r="QF"] .round-h{background:var(--pitch);}
+  .col[data-r="SF"] .round-h{background:var(--red);}
+  .bracket .match{flex:1;display:flex;align-items:center;position:relative;}
+  .bracket .match>.tie{width:100%;}
+
+  /* conectores em "colchete" — lado esquerdo: fluem para a direita (rumo ao centro) */
+  .side-left .col:not(:last-child) .match::after{content:"";position:absolute;top:50%;left:100%;width:var(--cgap);height:2px;background:var(--ink);opacity:.45;}
+  .side-left .col:not(:last-child) .match::before{content:"";position:absolute;left:calc(100% + var(--cgap));width:2px;background:var(--ink);opacity:.45;}
+  .side-left .col:not(:last-child) .match:nth-child(odd)::before{top:50%;bottom:0;}
+  .side-left .col:not(:last-child) .match:nth-child(even)::before{top:0;bottom:50%;}
+  .side-left .col:last-child .match::after{content:"";position:absolute;top:50%;left:100%;width:var(--cgap);height:2px;background:var(--ink);opacity:.45;}
+
+  /* lado direito: espelhado, fluem para a esquerda (rumo ao centro) */
+  .side-right .col:not(:first-child) .match::after{content:"";position:absolute;top:50%;right:100%;width:var(--cgap);height:2px;background:var(--ink);opacity:.45;}
+  .side-right .col:not(:first-child) .match::before{content:"";position:absolute;right:calc(100% + var(--cgap));width:2px;background:var(--ink);opacity:.45;}
+  .side-right .col:not(:first-child) .match:nth-child(odd)::before{top:50%;bottom:0;}
+  .side-right .col:not(:first-child) .match:nth-child(even)::before{top:0;bottom:50%;}
+  .side-right .col:first-child .match::after{content:"";position:absolute;top:50%;right:100%;width:var(--cgap);height:2px;background:var(--ink);opacity:.45;}
+
+  /* tie espelhado no lado direito: placar à esquerda, nome alinhado à direita */
+  .side-right .slot{grid-template-columns:28px 1fr;}
+  .side-right .slot input.team{text-align:right;}
+  .side-right .tie .tid{flex-direction:row-reverse;}
+
+  /* CENTRO: troféu / FINAL / disputa de 3º lugar */
+  .center-col{display:flex;flex-direction:column;min-width:198px;}
+  .center-spacer{visibility:hidden;margin-bottom:14px;}
+  .center-grid{flex:1;display:grid;grid-template-rows:1fr auto 1fr;align-items:center;gap:8px;}
+  .center-top{align-self:end;}
+  .center-final{align-self:center;position:relative;}
+  .center-bottom{align-self:start;}
+  .center-final::before{content:"";position:absolute;top:50%;right:100%;width:var(--cgap);height:2px;background:var(--gold);}
+  .center-final::after{content:"";position:absolute;top:50%;left:100%;width:var(--cgap);height:2px;background:var(--gold);}
+  .center-final .round-h.fin-h{background:var(--gold);color:var(--ink);font-size:14px;}
+  .center-final .tie{border:2.5px solid var(--gold);box-shadow:3px 4px 0 rgba(217,154,38,.35);}
+  .center-bottom .round-h.third-h{background:#7a6a4a;font-size:11px;}
   .tie{background:var(--paper-card);border:1.5px solid var(--ink);border-radius:3px;box-shadow:2px 3px 0 rgba(33,29,24,.18);overflow:hidden;}
   .tie .tid{font-family:'Oswald';font-size:8.5px;letter-spacing:.08em;color:var(--ink-soft);padding:3px 8px 2px;border-bottom:1px dotted var(--line);display:flex;justify-content:space-between;}
   .tie .tid .v{color:var(--blue);}
@@ -128,9 +163,8 @@
   .slot.win{background:rgba(63,122,75,.13);}
   .slot.win input.team{font-weight:700;}
   .slot.win::after{content:"✓";color:var(--pitch);font-weight:700;}
-  .final-wrap{display:flex;flex-direction:column;justify-content:center;gap:18px;flex:1;}
-  .trophy{font-family:'Anton';text-align:center;font-size:13px;letter-spacing:.1em;color:var(--gold);}
-  .third{margin-top:18px;}
+  .trophy{font-family:'Anton';text-align:center;font-size:14px;letter-spacing:.1em;color:var(--gold);}
+  .trophy.sub{font-size:10px;margin-top:8px;color:var(--ink-soft);letter-spacing:.08em;}
 
   footer{font-family:'Oswald';font-size:11px;color:var(--ink-soft);letter-spacing:.03em;text-align:center;margin-top:40px;border-top:1px dashed var(--line);padding-top:16px;}
   footer b{color:var(--ink);}
@@ -138,6 +172,24 @@
   .saved-flash.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   @media (max-width:640px){.meta{font-size:11px;gap:10px;}.spacer{flex-basis:100%;}.grid{grid-template-columns:1fr;}.tabs button{padding:8px 11px;font-size:11px;}}
+  /* telas estreitas: empilhar Lado esquerdo -> Final/3º -> Lado direito em coluna única */
+  @media (max-width:720px){
+    .bracket{flex-direction:column;gap:22px;min-width:0;}
+    .side{flex-direction:column;gap:22px;}
+    .col{min-width:0;}
+    .col-body{display:block;flex:none;}
+    .bracket .match{display:block;flex:none;}
+    .bracket .match+.match{margin-top:10px;}
+    .bracket .match::before,.bracket .match::after,.center-final::before,.center-final::after{display:none!important;}
+    .center-col{min-width:0;}
+    .center-spacer{display:none;}
+    .center-grid{display:block;}
+    .center-top,.center-bottom{margin-top:14px;}
+    /* desfaz o espelhamento do lado direito */
+    .side-right .slot{grid-template-columns:1fr 28px;}
+    .side-right .slot input.team{text-align:left;}
+    .side-right .tie .tid{flex-direction:row;}
+  }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;}.score input.filled,.score input.official,.slot input.sc.filled{transform:none;}}
   @media print{header.top{position:static;}.tools,.tabs,.intro,.legend,.saved-flash{display:none;}body{background:#fff;}#groups,#knockout{display:block!important;}}
 </style>
@@ -188,10 +240,6 @@
       seguem em branco para os seus palpites. Com o placar, o <b>vencedor sobe sozinho</b>. Em empate, toque no nome de quem avançou (pênaltis).
     </p>
     <div class="bracket-scroll"><div class="bracket" id="bracket"></div></div>
-    <div class="third"><div class="round" data-r="3L" style="max-width:240px;">
-      <div class="round-h" style="background:#7a6a4a;">Disputa de 3º lugar</div>
-      <div class="round-body" id="thirdBody"></div>
-    </div></div>
   </section>
 
   <footer>
@@ -310,6 +358,22 @@ const ROUNDS=[
  {key:"SF", label:"Semifinais",ids:[101,102]},
  {key:"F",  label:"Final",ids:[104]}
 ];
+/* Distribuição do chaveamento espelhado (derivada de WIN_LINK; não altera dados/lógica).
+   Esquerda flui 16-avos→semifinal rumo ao centro; direita é o espelho. */
+const KO_SIDES={
+ left:[
+   {key:"R32",label:"16-avos",  ids:[73,75,74,77,83,84,81,82]},
+   {key:"R16",label:"Oitavas",  ids:[89,90,93,94]},
+   {key:"QF", label:"Quartas",  ids:[97,98]},
+   {key:"SF", label:"Semifinal",ids:[101]}
+ ],
+ right:[
+   {key:"SF", label:"Semifinal",ids:[102]},
+   {key:"QF", label:"Quartas",  ids:[99,100]},
+   {key:"R16",label:"Oitavas",  ids:[91,92,95,96]},
+   {key:"R32",label:"16-avos",  ids:[76,78,79,80,86,88,85,87]}
+ ]
+};
 const WIN_LINK={73:[89,1],75:[89,2],74:[90,1],77:[90,2],76:[91,1],78:[91,2],79:[92,1],80:[92,2],
  83:[93,1],84:[93,2],81:[94,1],82:[94,2],86:[95,1],88:[95,2],85:[96,1],87:[96,2],
  89:[97,1],90:[97,2],93:[98,1],94:[98,2],91:[99,1],92:[99,2],95:[100,1],96:[100,2],
@@ -455,15 +519,22 @@ function tieHTML(id){
      <input class="team${o2?' official':''}" data-ko="${id}" data-slot="2" value="${k.t2||''}" placeholder="classificado" ${o2?'readonly tabindex="-1"':''}>
      <input class="sc${os?' official':''}" type="number" min="0" inputmode="numeric" data-ko="${id}" data-fs="2" value="${k.s2??''}" ${os?'readonly tabindex="-1"':''}></div></div>`;
 }
+function colHTML(c){
+ return `<div class="col" data-r="${c.key}"><div class="round-h">${c.label}</div>`+
+   `<div class="col-body">`+c.ids.map(id=>`<div class="match">`+tieHTML(id)+`</div>`).join("")+`</div></div>`;
+}
 function renderKO(){
- const br=document.getElementById("bracket");let html="";
- ROUNDS.forEach(R=>{
-   html+=`<div class="round" data-r="${R.key}"><div class="round-h">${R.label}</div>`;
-   if(R.key==="F"){html+=`<div class="final-wrap"><div class="trophy">★ CAMPEÃ ★</div>`+tieHTML(104)+`<div class="trophy">MetLife · NY/NJ · 19/07</div></div></div>`;}
-   else{html+=`<div class="round-body">`+R.ids.map(id=>tieHTML(id)).join("")+`</div></div>`;}
- });
- br.innerHTML=html;
- document.getElementById("thirdBody").innerHTML=tieHTML(103);
+ const br=document.getElementById("bracket");
+ const left=KO_SIDES.left.map(colHTML).join("");
+ const right=KO_SIDES.right.map(colHTML).join("");
+ const center=`<div class="center-col">
+   <div class="round-h center-spacer">&nbsp;</div>
+   <div class="center-grid">
+     <div class="center-top"><div class="trophy">★ CAMPEÃ ★</div></div>
+     <div class="center-final"><div class="round-h fin-h">Final</div>`+tieHTML(104)+`<div class="trophy sub">MetLife · NY/NJ · 19/07</div></div>
+     <div class="center-bottom"><div class="round-h third-h">Disputa de 3º lugar</div>`+tieHTML(103)+`</div>
+   </div></div>`;
+ br.innerHTML=`<div class="side side-left">${left}</div>${center}<div class="side side-right">${right}</div>`;
  document.querySelectorAll('input.team[data-ko]:not([readonly])').forEach(inp=>{
    inp.addEventListener('input',e=>{const id=+e.target.dataset.ko,sl=e.target.dataset.slot;
      state.ko[id]['t'+sl]=e.target.value;propagate(id);save(false);});
